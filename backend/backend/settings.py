@@ -65,8 +65,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.getenv('DATABASE_NAME', 'thesis_db'),
-        'USER': os.getenv('DATABASE_USER', 'thesis_user'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'thesis_pass'),
+        'USER': os.getenv('DATABASE_USER', 'root'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', ''),
         'HOST': os.getenv('DATABASE_HOST', 'localhost'),
         'PORT': os.getenv('DATABASE_PORT', '3306'),
         'OPTIONS': {
