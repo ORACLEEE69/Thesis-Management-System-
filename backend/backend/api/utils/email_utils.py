@@ -3,7 +3,7 @@ import resend
 from django.conf import settings
 from zoneinfo import ZoneInfo
 
-resend.api_key = settings.RESEND_API_KEY  # Set once
+resend.api_key = settings.RESEND_API_KEY
 
 
 def send_notification_email(subject, body, to_email):
