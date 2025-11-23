@@ -1,7 +1,9 @@
 import os
 from pathlib import Path
 from datetime import timedelta
-
+from dotenv import load_dotenv
+load_dotenv()
+RESEND_API_KEY = os.getenv('RESEND_API_KEY')
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'change-me-in-prod')

@@ -1,7 +1,9 @@
 from pathlib import Path
 import os
 import sys
-
+from dotenv import load_dotenv
+load_dotenv()
+RESEND_API_KEY = os.getenv('RESEND_API_KEY')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
