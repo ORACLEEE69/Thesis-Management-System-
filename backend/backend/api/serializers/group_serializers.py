@@ -81,13 +81,11 @@ class GroupSerializer(serializers.ModelSerializer):
         # If teacher/admin creates group, allow selecting leader
         if 'leader' not in validated:
             validated['leader'] = request.user
-
+        status = validated.pop('status', 'PENDING')
         members = validated.pop('members', [])
         panels = validated.pop('panels', [])
 
-        validated.setdefault('status', 'PENDING')
-
-        group = Group.objects.create(**validated)
+        group = Group.objects.create(status=status, **validated)
 
         leader = validated['leader']
         if leader not in members:

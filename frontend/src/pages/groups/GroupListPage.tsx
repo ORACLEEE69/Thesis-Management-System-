@@ -101,6 +101,8 @@ export default function GroupListPage() {
         abstract: '',
         keywords: '',
         adviser: '',
+        status: '',
+        rejection_reason: '',
         leader_id: '',
         panel_ids: [] as number[],
         member_ids: [] as number[]
@@ -292,8 +294,10 @@ export default function GroupListPage() {
             proposed_topic_title: formData.proposed_topic_title || undefined,
             abstract: formData.abstract || undefined,
             keywords: formData.keywords || undefined,
+            rejection_reason: formData.rejection_reason || undefined,
             panel_ids: formData.panel_ids || undefined,
             leader_id: formData.leader_id || undefined,
+            status: formData.status || undefined,
             adviser_id: formData.adviser ? Number(formData.adviser) : undefined,
             member_ids: formData.member_ids && formData.member_ids.length > 0 ? formData.member_ids : undefined
         };
@@ -306,7 +310,9 @@ export default function GroupListPage() {
                 proposed_topic_title: '',
                 abstract: '',
                 keywords: '',
+                rejection_reason: '',
                 adviser: '',
+                status: '',
                 leader_id: '',
                 panel_ids: [],
                 member_ids: []
@@ -1336,6 +1342,22 @@ export default function GroupListPage() {
                         required
                     />
 
+                    <FormControl fullWidth sx={{mb: 3}}>
+                        <InputLabel>Status</InputLabel>
+                        <Select
+                            value={formData.status || ''}
+                            label="Status"
+                            onChange={(e) => setFormData({...formData, status: e.target.value})}
+                        >
+                            <MenuItem value="">
+                                <em>None</em>
+                            </MenuItem>
+                            <MenuItem value="PENDING">Pending Review</MenuItem>
+                            <MenuItem value="APPROVED">Approved</MenuItem>
+                            <MenuItem value="REJECTED">Rejected</MenuItem>
+                        </Select>
+                    </FormControl>
+
                     <TextField
                         fullWidth
                         label="Proposed Topic Title"
@@ -1343,6 +1365,18 @@ export default function GroupListPage() {
                         onChange={(e) => setFormData({...formData, proposed_topic_title: e.target.value})}
                         sx={{mb: 2}}
                     />
+
+                    {formData.status === 'REJECTED' && (
+                        <TextField
+                            fullWidth
+                            label="Rejection Reason"
+                            value={formData.rejection_reason}
+                            onChange={(e) => setFormData({...formData, rejection_reason: e.target.value})}
+                            sx={{mb: 2}}
+                            required
+                        />
+                    )}
+
 
                     <TextField
                         fullWidth
