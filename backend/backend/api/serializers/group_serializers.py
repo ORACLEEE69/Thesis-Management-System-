@@ -2,49 +2,64 @@ from rest_framework import serializers
 from api.models.group_models import Group
 from api.models.user_models import User
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'email', 'first_name', 'last_name', 'role')
 
+
 class GroupSerializer(serializers.ModelSerializer):
     members = UserSerializer(many=True, read_only=True)
     adviser = UserSerializer(read_only=True, allow_null=True)
     panels = UserSerializer(many=True, read_only=True)
-    
+
     # Write-only fields for updates
     member_ids = serializers.PrimaryKeyRelatedField(
-        many=True, 
-        queryset=User.objects.all(), 
-        write_only=True, 
+        many=True,
+        queryset=User.objects.all(),
+        write_only=True,
         required=False,
         source='members'
     )
     adviser_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.filter(role='ADVISER'), 
-        write_only=True, 
-        allow_null=True, 
+        queryset=User.objects.filter(role='ADVISER'),
+        write_only=True,
+        allow_null=True,
         required=False,
         source='adviser'
     )
+
+    leader_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.filter(role='STUDENT'),
+        write_only=True,
+        required=False,
+        allow_null=True,
+        source='leader'
+    )
+
     panel_ids = serializers.PrimaryKeyRelatedField(
-        many=True, 
-        queryset=User.objects.filter(role='PANEL'), 
-        write_only=True, 
+        many=True,
+        queryset=User.objects.filter(role='PANEL'),
+        write_only=True,
         required=False,
         source='panels'
     )
+
     class Meta:
         model = Group
-        fields = ('id','name','status','proposed_topic_title','abstract','keywords','rejection_reason','leader','members','adviser','panels','member_ids','adviser_id','panel_ids','created_at')
-    
+        fields = ('id', 'name', 'leader_id', 'status', 'proposed_topic_title', 'abstract', 'keywords',
+                  'rejection_reason', 'leader',
+                  'members', 'adviser', 'panels', 'member_ids', 'adviser_id', 'panel_ids', 'created_at')
+
     def validate(self, attrs):
         members = attrs.get('members', [])
-        
+        leader = attrs.get('leader')
+
         # For partial updates, if members is not provided, get current members
         if self.partial and 'members' not in attrs and self.instance:
             members = list(self.instance.members.all())
-        
+
         # Check if any student members are already in another group
         for member in members:
             if member.role == 'STUDENT':
@@ -54,35 +69,35 @@ class GroupSerializer(serializers.ModelSerializer):
                     existing_groups = existing_groups.exclude(id=self.instance.id)
                 if existing_groups.exists():
                     raise serializers.ValidationError(f"Student {member.email} is already a member of another group")
-        
+
+        if leader and leader not in members:
+            members.append(leader)
+            attrs['members'] = members
         return attrs
-    
+
     def create(self, validated):
+        request = self.context.get('request')
+
+        # If teacher/admin creates group, allow selecting leader
+        if 'leader' not in validated:
+            validated['leader'] = request.user
+
         members = validated.pop('members', [])
         panels = validated.pop('panels', [])
-        
-        # Ensure status is set, use default if not provided
-        if 'status' not in validated:
-            validated['status'] = 'PENDING'
-        
-        # Set the leader as the user making the request
-        request = self.context.get('request')
-        if request and hasattr(request, 'user'):
-            validated['leader'] = request.user
-        
+
+        validated.setdefault('status', 'PENDING')
+
         group = Group.objects.create(**validated)
-        
-        # Add the leader as a member if they're not already in the members list
-        if validated['leader'] and validated['leader'] not in members:
-            members.append(validated['leader'])
-            
-        if members:
-            group.members.set(members)
-        if panels:
-            group.panels.set(panels)
-        group.save()
+
+        leader = validated['leader']
+        if leader not in members:
+            members.append(leader)
+
+        group.members.set(members)
+        group.panels.set(panels)
+
         return group
-    
+
     def update(self, instance, validated):
         # Handle the update normally
         for attr, value in validated.items():
@@ -102,6 +117,6 @@ class GroupSerializer(serializers.ModelSerializer):
                 instance.panels.set(value)
             else:
                 setattr(instance, attr, value)
-        
+
         instance.save()
         return instance
