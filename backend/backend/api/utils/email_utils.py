@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 
 resend.api_key = settings.RESEND_API_KEY
 
+
 def format_duration(td):
     total_seconds = int(td.total_seconds())
     hours, remainder = divmod(total_seconds, 3600)
@@ -34,6 +35,7 @@ def send_defense_scheduled_email(schedule_instance):
     manila_tz = ZoneInfo("Asia/Manila")
     # Convert start time
     start_time_manila = schedule_instance.start_at.astimezone(manila_tz)
+    defense_type = schedule_instance.type
     start_time = start_time_manila.strftime("%B %d, %Y at %I:%M %p")
 
     # Convert end time
@@ -86,6 +88,7 @@ def send_defense_scheduled_email(schedule_instance):
                     <h3><strong>Group:</strong> {group.name}</h3>
                     <p><strong>Date & Time:</strong> {start_time}</p>
                     <p><strong>Duration:</strong> {duration}</p>
+                    <p><strong>Type:</strong> {defense_type}</p>
                     <p><strong>Topic:</strong> {getattr(group, 'proposed_topic_title', 'Thesis Defense')}</p>
                     <p><strong>Venue:</strong> {getattr(schedule_instance, 'location', 'To be announced')}</p>
                 </div>
