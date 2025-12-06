@@ -50,7 +50,8 @@ class GroupSerializer(serializers.ModelSerializer):
         model = Group
         fields = ('id', 'name', 'leader_id', 'status', 'proposed_topic_title', 'abstract', 'keywords',
                   'rejection_reason', 'leader',
-                  'members', 'adviser', 'panels', 'member_ids', 'adviser_id', 'panel_ids', 'created_at')
+                  'members', 'adviser', 'panels', 'member_ids', 'adviser_id', 'panel_ids', 'created_at',
+                  'defense_stage')
 
     def validate(self, attrs):
         members = attrs.get('members', [])

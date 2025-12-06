@@ -198,7 +198,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             models.Q(members=user) |
             models.Q(adviser=user) |
             models.Q(panels=user)
-        )
+        ).distinct()
         print(f"Groups where user is member/adviser/panel: {groups.count()}")
         for group in groups:
             print(f"  - ID: {group.id}, Name: {group.name}, Status: {group.status}")

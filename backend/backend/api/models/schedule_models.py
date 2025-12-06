@@ -14,7 +14,7 @@ class DefenseSchedule(models.Model):
     TYPE_CHOICES = (
         ('CONCEPT', 'Concept'),
         ('FINAL', 'Final'),
-        ('REVIEW', 'Review'),
+        ('PROPOSAL', 'Proposal'),
     )
     type = models.CharField(
         max_length=16,

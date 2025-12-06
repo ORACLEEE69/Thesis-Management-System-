@@ -8,6 +8,7 @@ from api.serializers.schedule_serializers import ScheduleSerializer, ScheduleAva
 from api.permissions.role_permissions import IsAdviser, IsAdviserOrPanelForSchedule
 from api.utils.email_utils import send_defense_scheduled_email
 
+
 def get_user_display_name(user):
     if hasattr(user, 'get_full_name') and callable(user.get_full_name):
         name = user.get_full_name()
@@ -63,11 +64,17 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         print('adviser email: ', adviser_email)
         with transaction.atomic():
             instance = serializer.save(created_by=self.request.user)
+
+            group.defense_stage = instance.type
+            group.save(update_fields=['defense_stage'])
+
             send_defense_scheduled_email(instance)
 
     def perform_update(self, serializer):
         with transaction.atomic():
-            serializer.save()
+            instance = serializer.save()
+            instance.group.defense_stage = instance.type
+            instance.group.save(update_fields=['defense_stage'])
 
     @action(detail=False, methods=['post'], url_path='check-availability')
     def check_availability(self, request):

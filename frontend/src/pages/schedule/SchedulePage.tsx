@@ -29,6 +29,8 @@ import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns'
 import {Schedule, Delete, Add, EventNote, LocationOn, People, AccessTime} from '@mui/icons-material'
 import {listSchedules, createSchedule, deleteSchedule} from '../../api/scheduleService'
 import {useAuth} from '../../hooks/useAuth'
+import {getCurrentUserGroups} from "../../api/groupService";
+import {Group} from "../groups/GroupListPage";
 
 export default function SchedulePage() {
     const {user, isAdmin, isAdviser, isStudent, isPanel} = useAuth()
@@ -41,11 +43,21 @@ export default function SchedulePage() {
     const [location, setLocation] = useState('TBD')
     const [dialogOpen, setDialogOpen] = useState(false)
     const [selectedWeek, setSelectedWeek] = useState('Dec 18-22, 2024')
+    const [myGroups, setMyGroups] = useState<Group[]>([])
+
 
     async function load() {
         try {
             const r = await listSchedules();
             let allSchedules = r.data
+
+            const myGroupsResponse = await getCurrentUserGroups();
+            const myGroupsData = myGroupsResponse.data || []
+
+            if (myGroupsData) {
+                setMyGroups(myGroupsData)
+            }
+
 
             // Filter schedules based on user role
             if (isStudent && user) {
@@ -113,6 +125,8 @@ export default function SchedulePage() {
                 return '#64748B'
         }
     }
+
+    console.log('test', myGroups)
 
     return (
         <Box sx={{p: 4, backgroundColor: '#F8FAFC'}}>
@@ -293,19 +307,28 @@ export default function SchedulePage() {
                                 label="Defense Type"
                                 onChange={(e) => setDefenseType(e.target.value)}
                             >
-                                <MenuItem value="CONCEPT">Proposal Defense</MenuItem>
-                                <MenuItem value="REVIEW">Progress Review</MenuItem>
-                                <MenuItem value="FINAL">Final Defense</MenuItem>
+                                <MenuItem value="CONCEPT">Concept</MenuItem>
+                                <MenuItem value="PROPOSAL">Proposal</MenuItem>
+                                <MenuItem value="FINAL">Final</MenuItem>
                             </Select>
                         </FormControl>
 
-                        <TextField
-                            label="Group ID"
-                            value={group}
-                            onChange={(e) => setGroup(e.target.value)}
-                            fullWidth
-                            size="small"
-                        />
+                        <FormControl size="small" fullWidth>
+                            <InputLabel id="group-label">Group</InputLabel>
+
+                            <Select
+                                labelId="group-label"
+                                label="Group"
+                                value={group}
+                                onChange={(e) => setGroup(e.target.value)}
+                            >
+                                {myGroups.map((g) => (
+                                    <MenuItem key={g.id} value={g.id}>
+                                        {g.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
                         <TextField
                             label="Location"

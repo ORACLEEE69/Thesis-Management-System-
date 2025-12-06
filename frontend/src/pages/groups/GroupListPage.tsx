@@ -59,7 +59,7 @@ interface GroupData {
     members?: number[]
 }
 
-interface Group {
+export interface Group {
     id: number
     name: string
     proposed_topic_title?: string
@@ -481,6 +481,8 @@ export default function GroupListPage() {
                                             <TableCell sx={{fontWeight: 'bold', color: '#1e293b'}}>Topic
                                                 Title</TableCell>
                                             <TableCell sx={{fontWeight: 'bold', color: '#1e293b'}}>Adviser</TableCell>
+                                            <TableCell sx={{fontWeight: 'bold', color: '#1e293b'}}>Defense
+                                                Stage</TableCell>
                                             <TableCell sx={{fontWeight: 'bold', color: '#1e293b'}}>Action</TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -547,6 +549,10 @@ export default function GroupListPage() {
                                                         <Typography variant="body2" color="text.secondary">No
                                                             adviser</Typography>
                                                     )}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Typography
+                                                        variant="body2">{group.defense_stage}</Typography>
                                                 </TableCell>
                                                 <TableCell>
                                                     <Box sx={{display: 'flex', gap: 1}}>
